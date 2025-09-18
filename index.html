@@ -1,10 +1,300 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <title>测试</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>毛选语录Bot</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            font-family: '楷体', 'KaiTi', '华文楷体', 'STKaiti', serif;
+            
+            /* 自定义渐变背景 */
+            background: linear-gradient(135deg, 
+                #667eea 0%, 
+                #764ba2 25%, 
+                #f093fb 50%, 
+                #f5576c 75%, 
+                #4facfe 100%
+            );
+            
+            /* 添加背景纹理 */
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(255,255,255,0.1) 0%, transparent 50%);
+            background-attachment: fixed;
+            
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        /* 主容器 */
+        .container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        /* 标题样式 - 使用系统楷体 */
+        h1 {
+            font-family: '楷体', 'KaiTi', '华文楷体', 'STKaiti', serif;
+            font-size: 3.5em;
+            color: #000000;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.3);
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        
+        /* 语录文本框 */
+        .quote-container {
+            background: rgba(248, 248, 248, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px 30px;
+            margin: 30px 0;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .quote-container:hover {
+            background: rgba(250, 250, 250, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        }
+        
+        /* 语录文字 */
+        .quote-text {
+            font-size: 1.8em;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            font-family: '楷体', 'KaiTi', '华文楷体', 'STKaiti', serif;
+        }
+        
+        /* 语录出处 */
+        .quote-source {
+            font-size: 1.1em;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 25px;
+            font-family: '楷体', 'KaiTi', '华文楷体', 'STKaiti', serif;
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            background: transparent;
+            color: #000000;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            padding: 10px 20px;
+            font-size: 0.9em;
+            font-family: '楷体', 'KaiTi', '华文楷体', 'STKaiti', serif;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 8px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:active {
+            transform: translateY(0px);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+            
+            .quote-text {
+                font-size: 1.4em;
+            }
+            
+            .quote-container {
+                padding: 30px 20px;
+                margin: 20px 10px;
+            }
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
 </head>
 <body>
-    <h1 style="color: red; font-size: 50px;">测试成功！</h1>
-    <p>如果看到这个页面，说明GitHub Pages正常工作</p>
+    <div class="container">
+        <h1>毛选语录Bot</h1>
+        
+        <div class="quote-container fade-in" id="quoteContainer">
+            <div class="quote-text" id="quoteText">"星星之火，可以燎原"</div>
+            <div class="quote-source" id="quoteSource">——《星星之火，可以燎原》1930年</div>
+        </div>
+        
+        <div class="button-group">
+            <button class="btn" onclick="changeQuote()">⟲ 换一句</button>
+            <button class="btn" onclick="favoriteQuote()">♡ 收藏</button>
+            <button class="btn" onclick="shareQuote()">↑ 分享</button>
+        </div>
+    </div>
+
+    <script>
+        // 语录数据库
+        const quotesData = [
+            {
+                text: ""星星之火，可以燎原"",
+                source: "——《星星之火，可以燎原》1930年"
+            },
+            {
+                text: ""世上无难事，只怕有心人"",
+                source: "——《水调歌头·重上井冈山》1965年"
+            },
+            {
+                text: ""好好学习，天天向上"",
+                source: "——题词 1951年"
+            },
+            {
+                text: ""实践是检验真理的唯一标准"",
+                source: "——《实践论》1937年"
+            },
+            {
+                text: ""没有调查，就没有发言权"",
+                source: "——《反对本本主义》1930年"
+            },
+            {
+                text: ""自己动手，丰衣足食"",
+                source: "——题词 1939年"
+            },
+            {
+                text: ""团结就是力量"",
+                source: "——《论联合政府》1945年"
+            },
+            {
+                text: ""一切反动派都是纸老虎"",
+                source: "——《和美国记者安娜·路易斯·斯特朗的谈话》1946年"
+            },
+            {
+                text: ""人民，只有人民，才是创造世界历史的动力"",
+                source: "——《论联合政府》1945年"
+            },
+            {
+                text: ""虚心使人进步，骄傲使人落后"",
+                source: "——《中国共产党第八次全国代表大会开幕词》1956年"
+            }
+        ];
+        
+        let currentQuoteIndex = 0;
+        let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+        
+        // 换一句语录
+        function changeQuote() {
+            // 随机选择语录，避免重复
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * quotesData.length);
+            } while (newIndex === currentQuoteIndex && quotesData.length > 1);
+            
+            currentQuoteIndex = newIndex;
+            const quote = quotesData[currentQuoteIndex];
+            
+            // 获取页面元素
+            const container = document.getElementById('quoteContainer');
+            const textElement = document.getElementById('quoteText');
+            const sourceElement = document.getElementById('quoteSource');
+            
+            // 添加淡出效果
+            container.style.opacity = '0.3';
+            container.style.transform = 'translateY(10px)';
+            
+            // 延迟更新内容，创造切换效果
+            setTimeout(() => {
+                textElement.textContent = quote.text;
+                sourceElement.textContent = quote.source;
+                
+                // 淡入效果
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
+            }, 200);
+        }
+        
+        // 收藏语录
+        function favoriteQuote() {
+            const currentQuote = quotesData[currentQuoteIndex];
+            const quoteId = currentQuoteIndex;
+            
+            if (!favorites.includes(quoteId)) {
+                favorites.push(quoteId);
+                localStorage.setItem('favorites', JSON.stringify(favorites));
+                alert('语录已收藏！');
+            } else {
+                alert('这条语录已经在你的收藏中了');
+            }
+        }
+        
+        // 分享语录
+        function shareQuote() {
+            const currentQuote = quotesData[currentQuoteIndex];
+            const shareText = `${currentQuote.text}\n\n${currentQuote.source}\n\n来自：毛选语录Bot`;
+            
+            // 尝试使用Web Share API
+            if (navigator.share) {
+                navigator.share({
+                    title: '毛选语录分享',
+                    text: shareText
+                });
+            } else {
+                // 回退方案：复制到剪贴板
+                navigator.clipboard.writeText(shareText).then(() => {
+                    alert('语录已复制到剪贴板！');
+                }).catch(() => {
+                    alert('分享内容：\n\n' + shareText);
+                });
+            }
+        }
+        
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('毛选语录Bot加载完成！');
+            
+            // 添加键盘快捷键支持
+            document.addEventListener('keydown', function(event) {
+                if (event.code === 'Space') {
+                    event.preventDefault();
+                    changeQuote();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
